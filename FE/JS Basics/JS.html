@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS</title>
+</head>
+<body>
+ <h1> Відкрийте консоль для тесту </h1>
+  <script>
+    let studentName = "John Doe";
+    let studentAge = 20;
+    let isEnrolled = true;
+
+    console.log("Student Name:", studentName);
+    console.log("Student Age:", studentAge);
+    console.log("Is Enrolled:", isEnrolled);
+
+    function greet(name) {
+      return `Hello, ${name}!`;
+    }
+
+    function add(a, b) {
+      return a + b;
+    }
+
+    function isEven(number) {
+      return number % 2 === 0;
+    }
+
+    console.log(greet(studentName));
+    console.log("5 + 7 =", add(5, 7));
+    console.log("Is 10 even?", isEven(10));
+
+    let colors = ["red", "green", "blue"];
+
+    function getFirstElement(array) {
+      return array[0];
+    }
+
+    console.log("Colors array:", colors);
+    console.log("First color:", getFirstElement(colors));
+
+    let car = {
+      brand: "Toyota",
+      model: "Camry",
+      year: 2020
+    };
+
+    console.log("Car object:", car);
+
+    function getFullName(person) {
+      return `${person.firstName} ${person.lastName}`;
+    }
+
+    let samplePerson = { firstName: "Jane", lastName: "Smith" };
+    console.log("Full name:", getFullName(samplePerson));
+  </script>
+</body>
+</html>

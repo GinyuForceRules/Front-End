@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS</title>
+</head>
+<body>
+  <h1> Відкрийте консоль для тесту </h1>
+
+
+  <script>
+   
+
+   function filterEvenNumbers(numbers) {
+      return numbers.filter(num => num % 2 === 0);
+    }
+
+    function doubleNumbers(numbers) {
+      return numbers.map(num => num * 2);
+    }
+
+    function sumArray(numbers) {
+      return numbers.reduce((total, num) => total + num, 0);
+    }
+
+    const nums = [1, 2, 3, 4, 5, 6];
+    console.log("Even numbers:", filterEvenNumbers(nums));
+    console.log("Doubled numbers:", doubleNumbers(nums));
+    console.log("Sum of array:", sumArray(nums));
+
+
+
+    function createCounter() {
+      let count = 0;
+      return function() {
+        return count++;
+      };
+    }
+
+    function createMultiplier(multiplier) {
+      return function(num) {
+        return num * multiplier;
+      };
+    }
+
+    const counter = createCounter();
+    console.log("Counter calls:", counter(), counter(), counter());
+    const double = createMultiplier(2);
+    const triple = createMultiplier(3);
+    console.log("Double 5:", double(5));
+    console.log("Triple 4:", triple(4));
+
+
+
+    async function fetchUserData() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve({ id: 1, name: "John Doe" });
+        }, 100);
+      });
+    }
+
+    async function processData(number) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(number * 2);
+        }, 50);
+      });
+    }
+
+    (async () => {
+      const userData = await fetchUserData();
+      console.log("Fetched user data:", userData);
+
+      const processed = await processData(10);
+      console.log("Processed data (10 * 2):", processed);
+    })();
+
+
+    class Person {
+      constructor(name, age) {
+        this.name = name;
+        this.age = age;
+      }
+
+      introduce() {
+        return `Hi, I'm ${this.name} and I'm ${this.age} years old.`;
+      }
+    }
+
+    class Rectangle {
+      constructor(width, height) {
+        this.width = width;
+        this.height = height;
+      }
+
+      getArea() {
+        return this.width * this.height;
+      }
+    }
+
+    const person = new Person("Alice", 25);
+    console.log(person.introduce());
+
+    const rect = new Rectangle(5, 10);
+    console.log("Rectangle area:", rect.getArea());
+
+
+
+    function getFirstAndLast(array) {
+      const [first, ...rest] = array;
+      const last = rest.pop();
+      return { first, last };
+    }
+
+    console.log("First and last:", getFirstAndLast([10, 20, 30, 40, 50]));
+  </script>
+</body>
+</html>
