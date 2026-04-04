@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		    <link rel="stylesheet" href="style.css">
+
+    <title>Courses Manager - RxJS BehaviorSubject CRUD</title>
+    
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Courses Manager</h1>
+            <p>Reactive State Management with BehaviorSubject</p>
+            <div class="badge">⚡ Real-time updates | CRUD Operations | RxJS</div>
+        </div>
+
+        <div class="manager-layout">
+            <!-- Form Section for Adding New Course -->
+            <div class="form-section">
+                <div class="form-title">➕ Add New Course</div>
+                <form id="courseForm">
+                    <div class="form-group">
+                        <label for="title">Course Title *</label>
+                        <input type="text" id="title" name="title" required placeholder="e.g., Advanced JavaScript" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="Programming">💻 Programming</option>
+                            <option value="Frontend">🎨 Frontend</option>
+                            <option value="Backend">⚙️ Backend</option>
+                            <option value="Data Science">📊 Data Science</option>
+                            <option value="DevOps">🚀 DevOps</option>
+                            <option value="Mobile">📱 Mobile</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration *</label>
+                        <input type="text" id="duration" name="duration" required placeholder="e.g., 40 hours, 3 months">
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add Course</button>
+                </form>
+                <div style="margin-top: 15px; font-size: 0.8rem; color: #999; text-align: center;">
+                    * All fields are required
+                </div>
+            </div>
+
+            <!-- Courses List Section -->
+            <div class="courses-section">
+                <div class="section-header">
+                    <h2>📚 Courses List</h2>
+                    <div class="course-count" id="courseCount">0 courses</div>
+                </div>
+                <div id="coursesList" class="courses-grid">
+                    <div class="empty-state">
+                        <h3>No courses available</h3>
+                        <p>Add your first course using the form</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/rxjs@7.8.1/dist/bundles/rxjs.umd.min.js"></script>
+    <script>
+        // ========== Course Model ==========
+        class Course {
+            constructor(id, title, category, duration) {
+                this.id = id;
+                this.title = title;
+                this.category = category;
+                this.duration = duration;
+            }
+        }
+
+        // ========== Courses Service with BehaviorSubject ==========
+        class CoursesService {
+            // BehaviorSubject для зберігання списку курсів
+            #coursesSubject;
+            #nextId;
+
+            constructor(initialCourses = []) {
+                // Ініціалізуємо BehaviorSubject з початковими даними
+                this.#coursesSubject = new rxjs.BehaviorSubject(initialCourses);
+                this.#nextId = this.#calculateNextId(initialCourses);
+            }
+
+            // Обчислюємо наступний доступний ID
+            #calculateNextId(courses) {
+                if (courses.length === 0) return 1;
+                return Math.max(...courses.map(c => c.id)) + 1;
+            }
+
+            // Отримуємо список курсів як Observable
+            getCourses() {
+                return this.#coursesSubject.asObservable();
+            }
+
+            // Отримуємо поточне значення списку (синхронно)
+            getCurrentCourses() {
+                return this.#coursesSubject.getValue();
+            }
+
+            // Додаємо новий курс
+            addCourse(courseData) {
+                const currentCourses = this.getCurrentCourses();
+                
+                // Перевіряємо чи всі поля заповнені
+                if (!courseData.title || !courseData.category || !courseData.duration) {
+                    throw new Error('All fields are required');
+                }
+
+                // Створюємо новий курс з унікальним ID
+                const newCourse = new Course(
+                    this.#nextId++,
+                    courseData.title.trim(),
+                    courseData.category,
+                    courseData.duration.trim()
+                );
+
+                // Додаємо курс до списку
+                const updatedCourses = [...currentCourses, newCourse];
+                
+                // Оновлюємо BehaviorSubject - це автоматично сповістить всіх підписників
+                this.#coursesSubject.next(updatedCourses);
+                
+                console.log(`✅ Course added: ${newCourse.title} (ID: ${newCourse.id})`);
+                return newCourse;
+            }
+
+            // Видаляємо курс за ID
+            deleteCourse(id) {
+                const currentCourses = this.getCurrentCourses();
+                const courseToDelete = currentCourses.find(c => c.id === id);
+                
+                if (!courseToDelete) {
+                    throw new Error(`Course with ID ${id} not found`);
+                }
+
+                // Фільтруємо курс, який потрібно видалити
+                const updatedCourses = currentCourses.filter(course => course.id !== id);
+                
+                // Оновлюємо BehaviorSubject
+                this.#coursesSubject.next(updatedCourses);
+                
+                console.log(`🗑️ Course deleted: ${courseToDelete.title} (ID: ${id})`);
+                return true;
+            }
+
+            // Отримуємо статистику (додатковий метод)
+            getStats() {
+                const courses = this.getCurrentCourses();
+                const categories = [...new Set(courses.map(c => c.category))];
+                return {
+                    total: courses.length,
+                    categories: categories.length,
+                    categoriesList: categories
+                };
+            }
+        }
+
+        // ========== Test Data (мінімум 3 стартові записи) ==========
+        const initialCourses = [
+            new Course(1, 'JavaScript: The Complete Guide', 'Programming', '45 hours'),
+            new Course(2, 'React.js Mastery with Hooks', 'Frontend', '35 hours'),
+            new Course(3, 'Python for Data Analysis', 'Data Science', '40 hours'),
+            new Course(4, 'Node.js Microservices', 'Backend', '50 hours'), // Додатковий для демонстрації
+        ];
+
+        // ========== Initialize Service ==========
+        const coursesService = new CoursesService(initialCourses);
+
+        // ========== UI Controller ==========
+        class CoursesUIController {
+            constructor(coursesService) {
+                this.coursesService = coursesService;
+                this.coursesContainer = document.getElementById('coursesList');
+                this.courseCountElement = document.getElementById('courseCount');
+                this.form = document.getElementById('courseForm');
+                
+                this.init();
+            }
+
+            init() {
+                // Підписуємося на Observable з курсами
+                this.subscribeToCourses();
+                
+                // Налаштовуємо обробник форми
+                this.setupFormHandler();
+                
+                // Виводимо інформацію про ініціалізацію в консоль
+                console.log('🚀 CoursesManagerPage initialized with BehaviorSubject');
+                console.log('📊 Initial courses:', this.coursesService.getCurrentCourses());
+            }
+
+            subscribeToCourses() {
+                // Підписуємося на Observable - автоматично отримуємо оновлення при змінах
+                this.coursesService.getCourses().subscribe({
+                    next: (courses) => {
+                        console.log('🔄 Courses updated via BehaviorSubject, count:', courses.length);
+                        this.renderCourses(courses);
+                        this.updateCourseCount(courses.length);
+                        this.addUpdateAnimation();
+                    },
+                    error: (error) => {
+                        console.error('Error in courses stream:', error);
+                        this.showError(error.message);
+                    }
+                });
+            }
+
+            renderCourses(courses) {
+                if (!courses || courses.length === 0) {
+                    this.coursesContainer.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <h3>📭 No courses available</h3>
+                            <p>Add your first course using the form on the left</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Відображаємо всі курси
+                this.coursesContainer.innerHTML = courses.map(course => `
+                    <div class="course-item" data-course-id="${course.id}">
+                        <div class="course-header">
+                            <div class="course-title">${this.escapeHtml(course.title)}</div>
+                        </div>
+                        <div class="course-category">📁 ${this.escapeHtml(course.category)}</div>
+                        <div class="course-duration">
+                            <span>⏱️</span>
+                            <span>${this.escapeHtml(course.duration)}</span>
+                        </div>
+                        <div class="course-actions">
+                            <button class="btn btn-danger" onclick="window.deleteCourseById(${course.id})">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateCourseCount(count) {
+                const word = this.getCourseWord(count);
+                this.courseCountElement.textContent = `${count} ${word}`;
+            }
+
+            getCourseWord(count) {
+                if (count % 10 === 1 && count % 100 !== 11) return 'course';
+                if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) return 'courses';
+                return 'courses';
+            }
+
+            setupFormHandler() {
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addNewCourse();
+                });
+            }
+
+            addNewCourse() {
+                // Отримуємо дані з форми
+                const titleInput = document.getElementById('title');
+                const categorySelect = document.getElementById('category');
+                const durationInput = document.getElementById('duration');
+
+                const title = titleInput.value.trim();
+                const category = categorySelect.value;
+                const duration = durationInput.value.trim();
+
+                // Валідація
+                if (!title || !category || !duration) {
+                    this.showNotification('Please fill in all fields', 'error');
+                    return;
+                }
+
+                if (title.length < 2) {
+                    this.showNotification('Title must be at least 2 characters long', 'error');
+                    return;
+                }
+
+                try {
+                    // Додаємо курс через сервіс
+                    const newCourse = this.coursesService.addCourse({
+                        title,
+                        category,
+                        duration
+                    });
+
+                    // Очищуємо форму
+                    this.form.reset();
+                    
+                    // Показуємо повідомлення про успіх
+                    this.showNotification(`✅ Course "${title}" added successfully!`, 'success');
+                    
+                    // Фокус на поле title для наступного додавання
+                    titleInput.focus();
+                    
+                } catch (error) {
+                    this.showNotification(error.message, 'error');
+                }
+            }
+
+            deleteCourse(id) {
+                // Підтвердження видалення
+                const courseToDelete = this.coursesService.getCurrentCourses().find(c => c.id === id);
+                if (!courseToDelete) return;
+                
+                if (confirm(`Are you sure you want to delete "${courseToDelete.title}"?`)) {
+                    try {
+                        this.coursesService.deleteCourse(id);
+                        this.showNotification(`🗑️ Course "${courseToDelete.title}" deleted`, 'success');
+                    } catch (error) {
+                        this.showNotification(error.message, 'error');
+                    }
+                }
+            }
+
+            addUpdateAnimation() {
+                const container = this.coursesContainer;
+                container.classList.add('updating');
+                setTimeout(() => {
+                    container.classList.remove('updating');
+                }, 500);
+            }
+
+            showNotification(message, type = 'info') {
+                // Створюємо тимчасове сповіщення
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    z-index: 10000;
+                    animation: slideInRight 0.3s ease;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+
+            showError(message) {
+                this.showNotification(message, 'error');
+            }
+
+            escapeHtml(str) {
+                if (!str) return '';
+                return str
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+        }
+
+        // Додаємо CSS анімації для сповіщень
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ========== Initialize Application ==========
+        const uiController = new CoursesUIController(coursesService);
+
+        // Глобальна функція для видалення (щоб була доступна з HTML)
+        window.deleteCourseById = (id) => {
+            uiController.deleteCourse(id);
+        };
+
+        // Додаткова демонстрація роботи BehaviorSubject в консолі
+        console.log('='.repeat(60));
+        console.log('📚 Courses Manager with BehaviorSubject');
+        console.log('='.repeat(60));
+        console.log('✅ BehaviorSubject initialized with', initialCourses.length, 'courses');
+        console.log('✅ Subscribe to courses via coursesService.getCourses()');
+        console.log('✅ Auto-updates on add/delete operations');
+        console.log('='.repeat(60));
+        
+        // Демонстрація отримання статистики
+        setInterval(() => {
+            const stats = coursesService.getStats();
+            console.log(`📊 Current stats: ${stats.total} courses in ${stats.categories} categories`);
+        }, 30000); // Кожні 30 секунд виводимо статистику
+    </script>
+</body>
+</html>
