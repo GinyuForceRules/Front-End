@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript Task Manager | Type-Safe Demo</title>
+    		    <link rel="stylesheet" href="style.css">
+        
+        
+</head>
+<body>
+<div class="container">
+    <h1>📋 TaskMaster TS <span class="stats" id="statsBadge">⚡ типобезпечний менеджер</span></h1>
+    <div class="sub">✅ TypeScript: enum, generics, type guards, Partial, Omit, без any</div>
+
+    <div class="dashboard">
+        <div class="panel form-panel">
+            <h3 style="margin-top:0;">➕ Додати задачу</h3>
+            <div class="inline-form">
+                <div class="form-row">
+                    <label>Назва *</label>
+                    <input type="text" id="taskTitle" placeholder="Нова задача" />
+                </div>
+                <div class="form-row">
+                    <label>Опис</label>
+                    <textarea id="taskDesc" rows="2" placeholder="Деталі..."></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Пріоритет</label>
+                    <select id="taskPriority">
+                        <option value="low">🟢 Low</option>
+                        <option value="medium">🟠 Medium</option>
+                        <option value="high">🔴 High</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Статус</label>
+                    <select id="taskStatus">
+                        <option value="todo">📌 To Do</option>
+                        <option value="in-progress">⚙️ In Progress</option>
+                        <option value="done">✅ Done</option>
+                    </select>
+                </div>
+                <button id="addTaskBtn" class="primary">✨ Створити задачу</button>
+                <hr />
+                <h3>✏️ Редагувати</h3>
+                <div class="form-row">
+                    <label>ID задачі</label>
+                    <input type="text" id="updateId" placeholder="ID задачі" />
+                </div>
+                <div class="form-row">
+                    <label>Нова назва</label>
+                    <input type="text" id="updateTitle" placeholder="Оновити назву" />
+                </div>
+                <div class="form-row">
+                    <label>Новий опис</label>
+                    <textarea id="updateDesc" rows="2" placeholder="Новий опис..."></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Новий статус</label>
+                    <select id="updateStatus">
+                        <option value="todo">To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Новий пріоритет</label>
+                    <select id="updatePriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <button id="updateTaskBtn" class="warning">🔄 Оновити задачу</button>
+                <button id="deleteTaskBtn" class="danger">🗑️ Видалити за ID</button>
+                <input type="text" id="deleteIdInput" placeholder="ID для видалення" style="margin-top:6px;" />
+            </div>
+        </div>
+
+        <div class="panel tasks-panel">
+            <div class="filters">
+                <div class="filter-group">
+                    <span>🔍 Фільтри:</span>
+                    <select id="filterStatus">
+                        <option value="all">Всі статуси</option>
+                        <option value="todo">To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                    <select id="filterPriority">
+                        <option value="all">Всі пріоритети</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <button id="resetFiltersBtn" class="small">Скинути</button>
+            </div>
+            <div id="tasksListContainer">
+                <div class="empty-msg">📭 Завантаження задач...</div>
+            </div>
+        </div>
+    </div>
+    <footer>✔️ Generic пошук за id | Type Guard | Partial | Omit | Без any</footer>
+</div>
+ <script src="script.js"></script>
+
+</body>
+</html>
