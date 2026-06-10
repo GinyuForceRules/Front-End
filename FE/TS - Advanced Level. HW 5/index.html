@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Manager System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Event Manager System</h1>
+        
+        <div class="controls">
+            <button id="filter-all" class="filter-btn">📋 All Events</button>
+            <button id="filter-meeting" class="filter-btn">📎 Meetings</button>
+            <button id="filter-task" class="filter-btn">✅ Tasks</button>
+            <button id="filter-reminder" class="filter-btn">⏰ Reminders</button>
+            <button id="add-event-btn" class="btn-primary">➕ Add New Event</button>
+        </div>
+        
+        <div id="stats-container" class="stats-grid"></div>
+        
+        <div id="events-container" class="events-grid"></div>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+</body>
+</html>
